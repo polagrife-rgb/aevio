@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aevio — Chatbots IA pour PME</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --a1:#5b30ff;--a2:#ff6fd8;--a3:#00d4aa;--a4:#ffb830;
+  --text:#0d0b1e;--muted:#6b6880;--bg:#faf9ff;
+  --border:rgba(91,48,255,0.1);
+  --fd:'Bricolage Grotesque',sans-serif;
+  --fb:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);overflow-x:hidden;cursor:none}
+
+#cur{position:fixed;width:10px;height:10px;background:var(--a1);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s}
+#cur-ring{position:fixed;width:40px;height:40px;border:1.5px solid rgba(91,48,255,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 56px;transition:background .4s,box-shadow .4s}
+nav.scrolled{background:rgba(250,249,255,.92);backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--border)}
+.logo{font-family:var(--fd);font-weight:800;font-size:22px;letter-spacing:-.04em;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:6px}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--a3);animation:ldot 2s ease-in-out infinite;flex-shrink:0;-webkit-text-fill-color:initial}
+@keyframes ldot{0%,100%{transform:scale(1)}50%{transform:scale(1.7);opacity:.6}}
+.nav-links{display:flex;gap:36px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:1.5px;background:var(--a1);transition:width .3s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{background:var(--a1);color:#fff;padding:10px 26px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(91,48,255,.28)}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(91,48,255,.45)}
+
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:130px 24px 60px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% 80%,#ffe0a0 0%,#ffb8d0 30%,#e8d0ff 60%,#faf9ff 100%)}
+#star-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.hero-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(10px);border:1px solid rgba(91,48,255,.18);border-radius:100px;padding:7px 18px;font-size:13px;color:var(--a1);font-weight:500;margin-bottom:32px;box-shadow:0 4px 24px rgba(91,48,255,.1);opacity:0;animation:fadeUp .6s .2s ease forwards}
+.bdot{width:6px;height:6px;border-radius:50%;background:var(--a3);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+h1{font-family:var(--fd);font-size:clamp(44px,7vw,86px);font-weight:800;line-height:1.02;letter-spacing:-.04em;max-width:900px;opacity:0;animation:fadeUp .8s .35s ease forwards}
+.grad-text{background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 45%,var(--a4) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200%;animation:gradshift 4s ease-in-out infinite alternate}
+@keyframes gradshift{0%{background-position:0%}100%{background-position:100%}}
+
+.hero-sub{margin-top:22px;font-size:18px;color:var(--muted);font-weight:300;line-height:1.75;max-width:560px;opacity:0;animation:fadeUp .8s .5s ease forwards}
+.morph-word{display:inline-block;position:relative;color:var(--a1);font-weight:500;min-width:180px;text-align:left}
+.morph-word span{position:absolute;left:0;top:0;transition:opacity .4s,transform .4s;white-space:nowrap}
+.morph-word span.out{opacity:0;transform:translateY(-10px)}
+.morph-word span.in{opacity:1;transform:translateY(0)}
+
+.hero-actions{display:flex;gap:14px;margin-top:38px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .65s ease forwards}
+.btn-p{background:var(--a1);color:#fff;padding:15px 38px;border-radius:100px;font-size:15px;font-weight:500;text-decoration:none;box-shadow:0 8px 32px rgba(91,48,255,.32);transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 14px 48px rgba(91,48,255,.48)}
+.btn-g{background:rgba(255,255,255,.85);backdrop-filter:blur(10px);color:var(--text);padding:15px 38px;border-radius:100px;font-size:15px;font-weight:500;text-decoration:none;border:1.5px solid rgba(91,48,255,.15);transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.btn-g:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(91,48,255,.14)}
+
+.ticker-outer{overflow:hidden;padding:22px 0;background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.ticker-inner{display:flex;width:max-content;animation:tick 22s linear infinite}
+.ticker-inner:hover{animation-play-state:paused}
+.ti{display:flex;align-items:center;gap:14px;padding:0 40px;white-space:nowrap}
+.ti-num{font-family:var(--fd);font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ti-label{font-size:14px;color:var(--muted)}
+.ti-sep{width:5px;height:5px;border-radius:50%;background:var(--border);flex-shrink:0}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+section.wrap{padding:110px 56px;max-width:1160px;margin:0 auto}
+.stag{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--a1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.stag::before{content:'';width:20px;height:2px;background:var(--a1);border-radius:2px;flex-shrink:0}
+h2{font-family:var(--fd);font-size:clamp(32px,4vw,54px);font-weight:800;line-height:1.06;letter-spacing:-.03em;margin-bottom:16px}
+.ssub{font-size:17px;color:var(--muted);max-width:520px;line-height:1.78}
+
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:60px}
+.scard{background:#fff;border:1.5px solid var(--border);border-radius:26px;padding:38px;transition:box-shadow .3s;position:relative;overflow:hidden;transform-style:preserve-3d;will-change:transform}
+.scard::before{content:'';position:absolute;inset:0;background:radial-gradient(500px circle at var(--mx,50%) var(--my,50%),rgba(91,48,255,.06),transparent 40%);opacity:0;transition:opacity .3s;pointer-events:none;border-radius:26px}
+.scard:hover{box-shadow:0 28px 70px rgba(91,48,255,.14)}
+.scard:hover::before{opacity:1}
+.snum{font-family:var(--fd);font-size:56px;font-weight:800;line-height:1;margin-bottom:18px;background:linear-gradient(135deg,rgba(91,48,255,.12),rgba(255,111,216,.08));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.scard h3{font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:10px}
+.scard p{font-size:14px;color:var(--muted);line-height:1.78}
+.stag2{display:inline-block;margin-top:20px;background:rgba(91,48,255,.07);color:var(--a1);font-size:12px;font-weight:500;padding:5px 13px;border-radius:100px}
+
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:60px;align-items:start}
+.pcard{background:#fff;border:1.5px solid var(--border);border-radius:26px;padding:38px;transition:transform .3s,box-shadow .3s}
+.pcard:hover{transform:translateY(-7px);box-shadow:0 24px 60px rgba(91,48,255,.1)}
+.pcard.feat{border-color:var(--a1);background:linear-gradient(160deg,rgba(91,48,255,.05),#fff 55%);box-shadow:0 12px 48px rgba(91,48,255,.15)}
+.pbadge{display:inline-block;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:100px;margin-bottom:18px}
+.pval{font-family:var(--fd);font-size:50px;font-weight:800;line-height:1;letter-spacing:-.03em}
+.pval sup{font-size:20px;vertical-align:top;margin-top:10px;display:inline-block}
+.pper{font-size:13px;color:var(--muted);margin-bottom:6px}
+.pcard h3{font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:8px}
+.pcard>p{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.65}
+.fl{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.fl li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.chk{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chk svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.bp{display:block;text-align:center;padding:13px 24px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.bp:hover{transform:translateY(-2px)}
+.bp.filled{background:var(--a1);color:#fff;box-shadow:0 4px 20px rgba(91,48,255,.25)}
+.bp.filled:hover{box-shadow:0 8px 32px rgba(91,48,255,.4)}
+.bp.outline{border:1.5px solid var(--border);color:var(--text)}
+.bp.outline:hover{border-color:rgba(91,48,255,.3)}
+
+/* ── API KEY BANNER ── */
+.api-banner{background:rgba(91,48,255,.06);border:1.5px solid rgba(91,48,255,.18);border-radius:16px;padding:18px 24px;margin-bottom:28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.api-banner p{font-size:13px;color:var(--muted);flex:1;min-width:200px}
+.api-banner p strong{color:var(--text)}
+.api-input-row{display:flex;gap:8px;flex:2;min-width:260px}
+.api-input-row input{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:100px;padding:9px 18px;font-size:13px;color:var(--text);font-family:var(--fb);outline:none;transition:border-color .2s}
+.api-input-row input:focus{border-color:rgba(91,48,255,.4)}
+.api-save{background:var(--a1);color:#fff;border:none;border-radius:100px;padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:opacity .2s;white-space:nowrap}
+.api-save:hover{opacity:.85}
+.api-status{font-size:12px;font-weight:600;padding:4px 12px;border-radius:100px;display:none}
+.api-status.ok{background:rgba(0,212,170,.12);color:#00a88a;display:inline-block}
+.api-status.err{background:rgba(255,80,80,.1);color:#e03030;display:inline-block}
+
+/* ── DEMO ── */
+.demo-wrap{background:#fff;border:1.5px solid var(--border);border-radius:28px;overflow:hidden;margin-top:28px;display:grid;grid-template-columns:1fr 1fr;box-shadow:0 24px 80px rgba(91,48,255,.09)}
+.demo-info{padding:52px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border)}
+.demo-info h3{font-family:var(--fd);font-size:28px;font-weight:800;line-height:1.15;margin-bottom:14px}
+.demo-info p{font-size:15px;color:var(--muted);line-height:1.78;margin-bottom:28px}
+.dfeat{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);margin-bottom:10px}
+.dfeat .dd{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a3));flex-shrink:0}
+
+.chat-panel{display:flex;flex-direction:column;background:#faf9ff}
+.chat-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:#fff}
+.cav{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;font-family:var(--fd)}
+.cname{font-size:13px;font-weight:600}
+.cstat{font-size:11px;color:var(--a3);font-weight:500}
+.ondot{width:7px;height:7px;border-radius:50%;background:var(--a3);margin-left:auto;box-shadow:0 0 8px var(--a3);animation:pulse 2s infinite}
+.cmsgs{flex:1;padding:20px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:280px;max-height:340px}
+.msg{max-width:82%}
+.msg-b{align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:4px 18px 18px 18px;padding:11px 15px;font-size:13px;line-height:1.65;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.msg-u{align-self:flex-end;background:var(--a1);border-radius:18px 4px 18px 18px;padding:11px 15px;font-size:13px;line-height:1.65;color:#fff}
+.msg-b.streaming{border-color:rgba(91,48,255,.2)}
+.typing2{align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:4px 18px 18px 18px;padding:11px 15px;display:none;gap:5px;align-items:center}
+.typing2.show{display:flex}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce .8s infinite}
+.tdot:nth-child(2){animation-delay:.15s}.tdot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.cinrow{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px;background:#fff}
+.cinput{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:10px 18px;font-size:13px;color:var(--text);font-family:var(--fb);outline:none;transition:border-color .2s}
+.cinput:focus{border-color:rgba(91,48,255,.4)}
+.cinput:disabled{opacity:.5}
+.csend{width:38px;height:38px;border-radius:50%;background:var(--a1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(91,48,255,.3);flex-shrink:0}
+.csend:hover{transform:scale(1.1)}
+.csend:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.csend svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.no-key-msg{font-size:12px;color:var(--muted);text-align:center;padding:8px;font-style:italic}
+
+/* ── FLOATING WIDGET ── */
+#widget-btn{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2));border:none;cursor:pointer;z-index:1000;box-shadow:0 8px 28px rgba(91,48,255,.4);transition:transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center}
+#widget-btn:hover{transform:scale(1.1);box-shadow:0 12px 36px rgba(91,48,255,.55)}
+#widget-btn svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+#widget-btn.open svg{transform:rotate(45deg)}
+#widget-pulse{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:rgba(91,48,255,.3);z-index:999;animation:widgetpulse 2.5s ease-out infinite}
+@keyframes widgetpulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.2);opacity:0}}
+
+#widget-panel{position:fixed;bottom:96px;right:28px;width:340px;background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(91,48,255,.2);border:1px solid var(--border);z-index:1001;display:none;flex-direction:column;overflow:hidden;transform:scale(.95) translateY(8px);opacity:0;transition:transform .25s ease,opacity .25s ease}
+#widget-panel.show{display:flex;transform:scale(1) translateY(0);opacity:1}
+.wp-head{background:linear-gradient(135deg,var(--a1),var(--a2));padding:16px 18px;display:flex;align-items:center;gap:10px}
+.wp-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;font-family:var(--fd)}
+.wp-name{font-size:13px;font-weight:600;color:#fff}
+.wp-status{font-size:11px;color:rgba(255,255,255,.75)}
+.wp-msgs{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;min-height:220px;max-height:280px;background:#faf9ff}
+.wp-msg-b{align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:9px 13px;font-size:13px;line-height:1.6;max-width:85%;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.wp-msg-u{align-self:flex-end;background:var(--a1);border-radius:14px 4px 14px 14px;padding:9px 13px;font-size:13px;line-height:1.6;color:#fff;max-width:85%}
+.wp-typing{align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:9px 13px;display:none;gap:4px;align-items:center}
+.wp-typing.show{display:flex}
+.wp-cinrow{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;background:#fff}
+.wp-cinput{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:8px 16px;font-size:13px;color:var(--text);font-family:var(--fb);outline:none;transition:border-color .2s}
+.wp-cinput:focus{border-color:rgba(91,48,255,.4)}
+.wp-send{width:34px;height:34px;border-radius:50%;background:var(--a1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s}
+.wp-send:hover{transform:scale(1.08)}
+.wp-send svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.cwrap{background:#fff;border:1.5px solid var(--border);border-radius:28px;padding:62px;margin-top:60px;box-shadow:0 24px 80px rgba(91,48,255,.07);position:relative;overflow:hidden}
+.cwrap::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(91,48,255,.05),rgba(255,111,216,.03),transparent 70%);top:-200px;right:-150px;pointer-events:none}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:56px;position:relative}
+.cform2{display:flex;flex-direction:column;gap:16px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:6px}
+label{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+input,textarea,select{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:13px 18px;font-size:14px;color:var(--text);font-family:var(--fb);outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input:focus,textarea:focus,select:focus{border-color:rgba(91,48,255,.4);box-shadow:0 0 0 3px rgba(91,48,255,.06)}
+textarea{resize:vertical;min-height:110px}
+select option{background:#fff}
+.bsub{background:var(--a1);color:#fff;border:none;border-radius:100px;padding:15px 38px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:transform .2s,box-shadow .2s;box-shadow:0 8px 28px rgba(91,48,255,.28);align-self:flex-start}
+.bsub:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(91,48,255,.42)}
+.cinfo2 h3{font-family:var(--fd);font-size:26px;font-weight:800;margin-bottom:14px}
+.cinfo2 p{font-size:15px;color:var(--muted);line-height:1.78;margin-bottom:32px}
+.cit{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+.cit:last-child{border-bottom:none}
+.cion{width:40px;height:40px;border-radius:12px;background:rgba(91,48,255,.07);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cit span{font-size:13px;color:var(--muted)}
+.cit strong{display:block;font-size:14px;font-weight:600;margin-bottom:2px}
+
+footer{text-align:center;padding:44px 24px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+.flogo{font-family:var(--fd);font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+
+.rv{opacity:0;transform:translateY(36px);transition:opacity .75s ease,transform .75s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  nav{padding:14px 20px}.nav-links{display:none}
+  section.wrap{padding:80px 20px}
+  .sgrid,.pgrid{grid-template-columns:1fr}
+  .demo-wrap{grid-template-columns:1fr}
+  .demo-info{border-right:none;border-bottom:1px solid var(--border);padding:32px}
+  .cgrid,.frow{grid-template-columns:1fr}
+  .cwrap{padding:32px 24px}
+  #widget-panel{width:calc(100vw - 40px);right:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- FLOATING WIDGET -->
+<div id="widget-pulse"></div>
+<button id="widget-btn" onclick="toggleWidget()">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+<div id="widget-panel">
+  <div class="wp-head">
+    <div class="wp-av">A</div>
+    <div><div class="wp-name">Assistant Aevio</div><div class="wp-status">En ligne · Répond en 2s</div></div>
+  </div>
+  <div class="wp-msgs" id="wp-msgs">
+    <div class="wp-msg-b">👋 Bonjour ! Je suis l'assistant Aevio. Posez-moi n'importe quelle question sur nos services.</div>
+  </div>
+  <div class="wp-typing" id="wp-typing">
+    <div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>
+  </div>
+  <div class="wp-cinrow">
+    <input class="wp-cinput" id="wp-ci" type="text" placeholder="Votre question...">
+    <button class="wp-send" id="wp-cs"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </div>
+</div>
+
+<nav id="nav">
+  <div class="logo"><div class="logo-dot"></div>Aevio</div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#pricing">Tarifs</a>
+    <a href="#demo">Démo</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="nav-cta">Démo gratuite →</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <canvas id="star-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="bdot"></div>Propulsé par Claude AI · Anthropic</div>
+    <h1>Votre entreprise répond<br><span class="grad-text">24h/24 — sans effort.</span></h1>
+    <p class="hero-sub">Des chatbots IA sur mesure pour les PME belges.<br>
+      Idéal pour les <span class="morph-word"><span class="in">agences immo.</span><span class="out">garages auto.</span><span class="out">cabinets médicaux.</span><span class="out">restaurants.</span><span class="out">avocats.</span></span>
+    </p>
+    <div class="hero-actions">
+      <a href="#demo" class="btn-p"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Voir la démo live</a>
+      <a href="#pricing" class="btn-g">Voir les tarifs</a>
+    </div>
+  </div>
+</section>
+
+<div class="ticker-outer">
+  <div class="ticker-inner">
+    <div class="ti"><span class="ti-num">48h</span><span class="ti-label">Délai de livraison</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">24/7</span><span class="ti-label">Disponibilité</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">+80%</span><span class="ti-label">Leads qualifiés</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">100%</span><span class="ti-label">Personnalisé</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">0€</span><span class="ti-label">Pour tester</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">14j</span><span class="ti-label">Satisfait ou remboursé</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">48h</span><span class="ti-label">Délai de livraison</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">24/7</span><span class="ti-label">Disponibilité</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">+80%</span><span class="ti-label">Leads qualifiés</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">100%</span><span class="ti-label">Personnalisé</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">0€</span><span class="ti-label">Pour tester</span></div><div class="ti-sep"></div>
+    <div class="ti"><span class="ti-num">14j</span><span class="ti-label">Satisfait ou remboursé</span></div><div class="ti-sep"></div>
+  </div>
+</div>
+
+<section class="wrap" id="services">
+  <div class="stag rv">Ce qu'on fait</div>
+  <h2 class="rv">Un chatbot qui travaille<br>pendant que vous gérez.</h2>
+  <p class="ssub rv">Chaque bot configuré sur mesure — votre secteur, votre ton, vos services.</p>
+  <div class="sgrid">
+    <div class="scard rv"><div class="snum">01</div><h3>Chatbot sur mesure</h3><p>On forme votre bot avec vos infos : services, FAQ, prix, équipe. Il répond comme vous répondriez — en mieux, en moins de 2s.</p><div class="stag2">IA générative</div></div>
+    <div class="scard rv" style="transition-delay:.1s"><div class="snum">02</div><h3>Intégration en 48h</h3><p>Un snippet HTML à coller. Compatible WordPress, Wix, Squarespace, site custom. Aucune compétence technique requise.</p><div class="stag2">Plug & play</div></div>
+    <div class="scard rv" style="transition-delay:.2s"><div class="snum">03</div><h3>Suivi mensuel</h3><p>On analyse les conversations, on améliore les réponses. Votre bot devient plus intelligent chaque mois.</p><div class="stag2">Amélioration continue</div></div>
+  </div>
+</section>
+
+<section class="wrap" id="pricing">
+  <div class="stag rv">Tarifs</div>
+  <h2 class="rv">Transparent. Sans surprise.</h2>
+  <p class="ssub rv">Un setup unique, une maintenance mensuelle optionnelle.</p>
+  <div class="pgrid">
+    <div class="pcard rv">
+      <h3>Starter</h3><p>Pour tester et lancer rapidement.</p>
+      <div class="pval"><sup>€</sup>499</div><div class="pper">setup unique · sans engagement</div>
+      <ul class="fl">
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Chatbot personnalisé</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Widget intégrable</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>FAQ sur mesure</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Livraison en 48h</li>
+      </ul>
+      <a href="#contact" class="bp outline">Commencer</a>
+    </div>
+    <div class="pcard feat rv" style="transition-delay:.1s">
+      <div class="pbadge">⭐ Populaire</div>
+      <h3>Business</h3><p>La solution complète avec suivi mensuel.</p>
+      <div class="pval"><sup>€</sup>499</div><div class="pper">+ 149 €/mois · sans engagement</div>
+      <ul class="fl">
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Tout le Starter</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Maintenance mensuelle</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Amélioration des réponses</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Support prioritaire</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Rapport mensuel</li>
+      </ul>
+      <a href="#contact" class="bp filled">Je veux ça →</a>
+    </div>
+    <div class="pcard rv" style="transition-delay:.2s">
+      <h3>Premium</h3><p>Pour les besoins avancés et volumes élevés.</p>
+      <div class="pval" style="font-size:28px;margin-top:8px">Sur devis</div><div class="pper">&nbsp;</div>
+      <ul class="fl">
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Multilingue FR/NL/EN</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Intégration CRM</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Analytics avancés</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>Formation équipe</li>
+        <li><div class="chk"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>SLA garanti</li>
+      </ul>
+      <a href="#contact" class="bp outline">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="demo">
+  <div class="stag rv">Démo live</div>
+  <h2 class="rv">Testez par vous-même</h2>
+  <p class="ssub rv">Entrez votre clé API Anthropic et posez une vraie question — réponse réelle de Claude.</p>
+
+  <!-- API KEY BANNER -->
+  <div class="api-banner rv">
+    <p><strong>Clé API Anthropic</strong> — collez votre clé pour activer la démo réelle.</p>
+    <div class="api-input-row">
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-...">
+      <button class="api-save" onclick="saveKey()">Activer</button>
+    </div>
+    <span class="api-status" id="api-status"></span>
+  </div>
+
+  <div class="demo-wrap rv">
+    <div class="demo-info">
+      <h3>Intelligent.<br>Instantané.<br>À votre image.</h3>
+      <p>Ce chatbot est connecté à Claude (Anthropic) en temps réel. Les réponses sont générées par IA — exactement comme le bot qu'Aevio livrerait à votre client.</p>
+      <div class="dfeat"><div class="dd"></div>Réponses réelles par Claude AI</div>
+      <div class="dfeat"><div class="dd"></div>Disponible 24h/24, 7j/7</div>
+      <div class="dfeat"><div class="dd"></div>Adapté à votre secteur</div>
+      <div class="dfeat"><div class="dd"></div>Capture les leads automatiquement</div>
+    </div>
+    <div class="chat-panel">
+      <div class="chat-head">
+        <div class="cav">A</div>
+        <div><div class="cname">Assistant Aevio</div><div class="cstat" id="demo-status">En attente de la clé API</div></div>
+        <div class="ondot" id="demo-dot" style="background:#aaa;box-shadow:none"></div>
+      </div>
+      <div class="cmsgs" id="cmsgs">
+        <div class="msg msg-b">👋 Bonjour ! Je suis l'assistant Aevio. Activez la clé API ci-dessus pour me poser vos vraies questions.</div>
+      </div>
+      <div class="typing2" id="typ2">
+        <div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>
+      </div>
+      <div class="cinrow">
+        <input class="cinput" id="ci" type="text" placeholder="Entrez votre clé API d'abord..." disabled>
+        <button class="csend" id="cs" disabled><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+      <div class="no-key-msg" id="no-key-msg">🔑 Entrez votre clé API Anthropic ci-dessus pour activer la démo</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="contact">
+  <div class="stag rv">Contact</div>
+  <h2 class="rv">Réponse sous 24h — garanti.</h2>
+  <p class="ssub rv">Décrivez votre business, on prépare une démo personnalisée gratuite.</p>
+  <div class="cwrap rv">
+    <div class="cgrid">
+      <div class="cform2">
+        <div class="frow">
+          <div class="fg"><label>Prénom</label><input type="text" placeholder="Jean"></div>
+          <div class="fg"><label>Nom</label><input type="text" placeholder="Dupont"></div>
+        </div>
+        <div class="fg"><label>Email</label><input type="email" placeholder="jean@monentreprise.be"></div>
+        <div class="fg"><label>Secteur</label>
+          <select><option>Choisir...</option><option>Immobilier</option><option>Automobile / Garage</option><option>Santé / Médical</option><option>Restaurant / Horeca</option><option>Juridique</option><option>E-commerce</option><option>Autre</option></select>
+        </div>
+        <div class="fg"><label>Message</label><textarea placeholder="Décrivez votre entreprise et ce que vous attendez..."></textarea></div>
+        <button class="bsub" id="subBtn" onclick="handleSub()">Recevoir ma démo gratuite →</button>
+      </div>
+      <div class="cinfo2">
+        <h3>Pourquoi Aevio ?</h3>
+        <p>Une équipe jeune, passionnée, basée en Belgique. On comprend vos clients, votre marché, votre langue.</p>
+        <div class="cit"><div class="cion">📍</div><div><strong>Basé en Belgique</strong><span>On parle votre langue et connaît votre marché</span></div></div>
+        <div class="cit"><div class="cion">⚡</div><div><strong>Livraison en 48h</strong><span>De la commande à l'installation en 2 jours</span></div></div>
+        <div class="cit"><div class="cion">🛠️</div><div><strong>Support inclus</strong><span>On est disponibles si vous avez un problème</span></div></div>
+        <div class="cit"><div class="cion">🔒</div><div><strong>Satisfait ou remboursé</strong><span>14 jours pour tester sans risque</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="flogo">Aevio</div>
+  <p>© 2025 Aevio — Bruxelles, Belgique · Chatbots IA pour PME</p>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function anim(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim)})();
+document.querySelectorAll('a,button,input,textarea,select,.scard,.pcard').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px';ring.style.width='56px';ring.style.height='56px'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';ring.style.width='40px';ring.style.height='40px'});
+});
+
+// ── NAV ──
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>40));
+
+// ── STARBURST ──
+(function(){
+  const canvas=document.getElementById('star-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,t=0;
+  const mouse={x:null,y:null};
+  function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight}
+  resize();window.addEventListener('resize',resize);
+  document.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();if(e.clientY>=r.top&&e.clientY<=r.bottom){mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top}});
+  const N=90,spokes=[];
+  for(let i=0;i<N;i++){const a=(Math.PI*2/N)*i;spokes.push({baseAngle:a,len:180+Math.random()*320,speed:0.0003+Math.random()*0.0006,phase:Math.random()*Math.PI*2,thickness:0.4+Math.random()*0.8,dotSize:2+Math.random()*4,dotOff:0.6+Math.random()*0.4})}
+  function col(angle,p){const n=((angle%(Math.PI*2))+Math.PI*2)%(Math.PI*2),d=n*180/Math.PI;let r,g,b;
+    if(d<90){const t=d/90;r=Math.round(180+t*75);g=Math.round(80+t*40);b=Math.round(255-t*75)}
+    else if(d<180){const t=(d-90)/90;r=255;g=Math.round(120+t*20);b=Math.round(180-t*100)}
+    else if(d<270){const t=(d-180)/90;r=Math.round(255-t*55);g=Math.round(140-t*40);b=Math.round(80+t*120)}
+    else{const t=(d-270)/90;r=Math.round(200-t*20);g=Math.round(100-t*20);b=Math.round(200+t*55)}
+    return`rgba(${r},${g},${b},${(0.3+p*0.55).toFixed(2)})`}
+  function draw(){
+    ctx.clearRect(0,0,W,H);t++;
+    const ox=W*.5,oy=H*.78;
+    let mdx=0,mdy=0;
+    if(mouse.x!==null){mdx=(mouse.x-ox)/W*.28;mdy=(mouse.y-oy)/H*.28}
+    for(let i=0;i<spokes.length;i++){
+      const s=spokes[i];
+      const sw=Math.sin(t*s.speed*60+s.phase)*.04;
+      const a=s.baseAngle+sw+mdx*Math.cos(s.baseAngle)*.18+mdy*Math.sin(s.baseAngle)*.18;
+      const na=((a%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+      if(na>Math.PI*.04&&na<Math.PI*.96)continue;
+      const ex=ox+Math.cos(a)*s.len,ey=oy+Math.sin(a)*s.len;
+      const g=ctx.createLinearGradient(ox,oy,ex,ey);
+      g.addColorStop(0,'rgba(150,80,220,0)');g.addColorStop(.3,col(a,.3));g.addColorStop(1,col(a,.8));
+      ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ex,ey);ctx.strokeStyle=g;ctx.lineWidth=s.thickness;ctx.stroke();
+      const dx=ox+Math.cos(a)*s.len*s.dotOff,dy=oy+Math.sin(a)*s.len*s.dotOff;
+      ctx.beginPath();ctx.arc(dx,dy,s.dotSize*.5,0,Math.PI*2);ctx.fillStyle=col(a,.9);ctx.fill();
+      ctx.beginPath();ctx.arc(ex,ey,s.dotSize*.35,0,Math.PI*2);ctx.fillStyle=col(a,.6);ctx.fill();
+    }
+    const gl2=ctx.createRadialGradient(ox,oy,0,ox,oy,80);
+    gl2.addColorStop(0,'rgba(180,120,255,0.18)');gl2.addColorStop(1,'rgba(180,120,255,0)');
+    ctx.beginPath();ctx.arc(ox,oy,80,0,Math.PI*2);ctx.fillStyle=gl2;ctx.fill();
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── 3D TILT ──
+document.querySelectorAll('.scard').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`perspective(800px) rotateX(${-y*10}deg) rotateY(${x*10}deg) scale(1.02)`;
+    card.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    card.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+  card.addEventListener('mouseleave',()=>{card.style.transform='perspective(800px) rotateX(0) rotateY(0) scale(1)'});
+});
+
+// ── MORPH TEXT ──
+(function(){
+  const spans=document.querySelectorAll('.morph-word span');let i=0;
+  setInterval(()=>{spans[i].classList.remove('in');spans[i].classList.add('out');i=(i+1)%spans.length;spans[i].classList.remove('out');spans[i].classList.add('in')},2200);
+})();
+
+// ── SCROLL REVEAL ──
+const obs=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('vis')}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+// ── API KEY ──
+let API_KEY = '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';
+const SYSTEM_PROMPT = `Tu es l'assistant virtuel d'Aevio, une agence belge spécialisée dans la création de chatbots IA sur mesure pour les PME.
+
+Ton rôle : répondre aux questions des visiteurs du site avec professionnalisme et chaleur. Tu peux parler de :
+- Les services d'Aevio : création de chatbots IA personnalisés, intégration en 48h, suivi mensuel
+- Les tarifs : Starter à 499€ (setup unique), Business à 499€ + 149€/mois, Premium sur devis
+- Les avantages : disponibilité 24/7, réponse en moins de 2s, 100% personnalisé, livraison en 48h
+- La localisation : basé en Belgique, francophone, connaît le marché belge
+- Garantie : satisfait ou remboursé 14 jours
+
+Sois concis (max 3 phrases), chaleureux, et encourage toujours à prendre contact ou demander une démo gratuite. Réponds toujours en français.`;
+
+function saveKey(){
+  const val = document.getElementById('api-key-input').value.trim();
+  const status = document.getElementById('api-status');
+  if(!val.startsWith('sk-ant-')){
+    status.textContent = '❌ Clé invalide';status.className='api-status err';return;
+  }
+  API_KEY = val;
+  status.textContent = '✅ Activé';status.className='api-status ok';
+  document.getElementById('ci').disabled=false;
+  document.getElementById('ci').placeholder='Posez votre question...';
+  document.getElementById('cs').disabled=false;
+  document.getElementById('no-key-msg').style.display='none';
+  document.getElementById('demo-status').textContent='En ligne';
+  document.getElementById('demo-dot').style.background='var(--a3)';
+  document.getElementById('demo-dot').style.boxShadow='0 0 8px var(--a3)';
+  // also activate widget
+  document.getElementById('wp-ci').placeholder='Votre question...';
+  // add welcome message
+  addMsg('cmsgs','msg-b','✅ Parfait ! Je suis maintenant connecté en temps réel à Claude AI. Posez-moi n\'importe quelle question !');
+}
+
+// ── CLAUDE API CALL ──
+async function askClaude(userMsg, history){
+  const messages = history.map(m=>({role:m.role,content:m.content}));
+  messages.push({role:'user',content:userMsg});
+  const res = await fetch('https://corsproxy.io/?https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,system:SYSTEM_PROMPT,messages})
+  });
+  if(!res.ok) throw new Error('API error '+res.status);
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+function addMsg(containerId, cls, text){
+  const c=document.getElementById(containerId);
+  const m=document.createElement('div');m.className='msg '+cls;m.textContent=text;
+  c.appendChild(m);c.scrollTop=c.scrollHeight;return m;
+}
+
+// ── DEMO CHAT ──
+const demoHistory=[];
+let demoLocked=false;
+async function sendDemo(){
+  if(demoLocked)return;
+  const inp=document.getElementById('ci');
+  const txt=inp.value.trim();if(!txt)return;
+  if(!API_KEY){alert('Entrez votre clé API d\'abord !');return;}
+  inp.value='';demoLocked=true;
+  addMsg('cmsgs','msg-u',txt);
+  demoHistory.push({role:'user',content:txt});
+  document.getElementById('typ2').classList.add('show');
+  document.getElementById('cmsgs').scrollTop=9999;
+  try{
+    const reply=await askClaude(txt,demoHistory.slice(0,-1));
+    demoHistory.push({role:'assistant',content:reply});
+    document.getElementById('typ2').classList.remove('show');
+    addMsg('cmsgs','msg-b',reply);
+  }catch(e){
+    document.getElementById('typ2').classList.remove('show');
+    addMsg('cmsgs','msg-b','❌ Erreur API. Vérifiez votre clé Anthropic.');
+  }
+  demoLocked=false;
+}
+document.getElementById('cs').addEventListener('click',sendDemo);
+document.getElementById('ci').addEventListener('keydown',e=>{if(e.key==='Enter')sendDemo()});
+
+// ── WIDGET CHAT ──
+const wpHistory=[];
+let wpLocked=false;
+let wpOpen=false;
+function toggleWidget(){
+  wpOpen=!wpOpen;
+  const panel=document.getElementById('widget-panel');
+  const btn=document.getElementById('widget-btn');
+  if(wpOpen){panel.style.display='flex';setTimeout(()=>panel.classList.add('show'),10);btn.classList.add('open')}
+  else{panel.classList.remove('show');setTimeout(()=>panel.style.display='none',250);btn.classList.remove('open')}
+}
+async function sendWidget(){
+  if(wpLocked)return;
+  const inp=document.getElementById('wp-ci');
+  const txt=inp.value.trim();if(!txt)return;
+  if(!API_KEY){
+    const m=document.createElement('div');m.className='wp-msg-b';m.textContent='🔑 Veuillez d\'abord activer votre clé API dans la section Démo.';
+    document.getElementById('wp-msgs').appendChild(m);return;
+  }
+  inp.value='';wpLocked=true;
+  const c=document.getElementById('wp-msgs');
+  const um=document.createElement('div');um.className='wp-msg-u';um.textContent=txt;c.appendChild(um);c.scrollTop=9999;
+  wpHistory.push({role:'user',content:txt});
+  const typ=document.getElementById('wp-typing');typ.classList.add('show');c.scrollTop=9999;
+  try{
+    const reply=await askClaude(txt,wpHistory.slice(0,-1));
+    wpHistory.push({role:'assistant',content:reply});
+    typ.classList.remove('show');
+    const bm=document.createElement('div');bm.className='wp-msg-b';bm.textContent=reply;c.appendChild(bm);c.scrollTop=9999;
+  }catch(e){
+    typ.classList.remove('show');
+    const bm=document.createElement('div');bm.className='wp-msg-b';bm.textContent='❌ Erreur API. Vérifiez votre clé.';c.appendChild(bm);
+  }
+  wpLocked=false;
+}
+document.getElementById('wp-cs').addEventListener('click',sendWidget);
+document.getElementById('wp-ci').addEventListener('keydown',e=>{if(e.key==='Enter')sendWidget()});
+
+// ── SUBMIT ──
+function handleSub(){
+  const b=document.getElementById('subBtn');
+  b.textContent='✓ Envoyé — réponse sous 24h !';
+  b.style.background='linear-gradient(135deg,#00d4aa,#00a88a)';
+  b.disabled=true;
+}
+</script>
+</body>
+</html>
